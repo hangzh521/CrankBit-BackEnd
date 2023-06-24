@@ -6,6 +6,7 @@ export interface IUser extends Document {
   name: string
   email: string
   password: string
+  companyUrls: string[]
   createJwt(): string
   comparePassword(inputPassword: string): Promise<boolean>
 }
@@ -28,6 +29,12 @@ const UserSchema = new mongoose.Schema({
     minlength: 6,
     select: false,
   },
+  companyUrls: [
+    {
+      type: String,
+      required: [true, 'please provide a company URL'],
+    },
+  ],
 })
 
 const saltRounds = 12
