@@ -1,11 +1,13 @@
 import mongoose, { Document } from 'mongoose'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { ICompany } from './Company'
 
 export interface IUser extends Document {
   name: string
   email: string
   password: string
+  companies: ICompany[]
   createJwt(): string
   comparePassword(inputPassword: string): Promise<boolean>
 }
@@ -28,6 +30,24 @@ const UserSchema = new mongoose.Schema({
     minlength: 6,
     select: false,
   },
+  companies: [
+    {
+      domain: {
+        type: String,
+        required: [true, 'please provide a company name'],
+        unique: true,
+        validate: {
+          validator(value: string): boolean {
+            const pattern = /^[A-Za-z0-9_-]+\.crankbit\.net$/
+            return pattern.test(value)
+          },
+          message: 'Please provide a valid domain name',
+        },
+        minlength: 3,
+        maxlength: 30,
+      },
+    },
+  ],
 })
 
 const saltRounds = 12

@@ -8,6 +8,7 @@
     "start": "nodemon",
     "start:node": "node dist/app.js",
     "start:pm2": "pm2 start dist/app.js",
+    "stop:pm2": "pm2 stop dist/app.js",
     "build": "tsc",
     "test": "jest --passWithNoTests",
     "clean": "rimraf dist",
@@ -67,6 +68,7 @@
     "pm2": "^5.3.0",
     "prettier": "^2.8.8",
     "rimraf": "^5.0.1",
+    "ts-node": "^10.9.1",
     "tsc-watch": "^5.0.3",
     "typescript": "^4.6.4"
   },
@@ -102,8 +104,6 @@
     ]
   },
   "engines": {
-    "node": "^18.0.0",
-    "yarn": "^3.6.0"
-  },
-  "packageManager": "yarn@3.6.0"
+    "node": "^18.0.0"
+  }
 }

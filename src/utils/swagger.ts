@@ -9,5 +9,5 @@ export default swaggerJsDoc({
       description: 'This is the API documentation',
     },
   },
-  apis: ['controllers/*.js'],
+  apis: ['./src/routes/*.ts'],
 })

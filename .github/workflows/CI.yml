@@ -23,12 +23,11 @@ jobs:
           node-version: '18'
       - name: Install and Build
         run: |
-          yarn set version 3.6.0
-          yarn
-          yarn lint
-          yarn test
-          yarn build
-          yarn start:pm2
+          npm install
+          npm run lint
+          npm run test
+          npm run build
+          npm run start:pm2
       - name: Health Check
         uses: jtalk/url-health-check-action@v3
         with:

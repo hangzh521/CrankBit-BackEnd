@@ -16,17 +16,6 @@ app.use(express.json())
 app.use(helmet())
 app.use(cors())
 
-// Connect to MongoDB
-
-// routes
-app.use('/api/v1', v1Router)
-
-// health check api
-app.get('/health-check', (request: Request, response: Response) => response.status(200).send({ message: 'healthy' }))
-
-// swagger api docs
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJsDoc))
-
 // rate limiter
 app.use(
   RateLimit({
@@ -36,7 +25,19 @@ app.use(
   })
 )
 
-// TODO: error handler
+// routes
+app.use('/api/v1', v1Router)
+
+// health check api
+app.get('/health-check', (request: Request, response: Response) => response.status(200).send({ message: 'healthy' }))
+
+// swagger api docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJsDoc))
+app.get('/docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json')
+  res.send(swaggerJsDoc)
+})
+
 const port = process.env.PORT || 8080
 
 const start = async (): Promise<void> => {
