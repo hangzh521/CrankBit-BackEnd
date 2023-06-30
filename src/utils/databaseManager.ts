@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-export default async function createDatabase(companyName: string): Promise<void> {
+const createDatabase = async (companyName: string): Promise<void> => {
   try {
     const dbName = `db_${companyName}`
 
@@ -13,3 +13,5 @@ export default async function createDatabase(companyName: string): Promise<void>
     console.error('Error creating database:', error)
   }
 }
+
+export default createDatabase
