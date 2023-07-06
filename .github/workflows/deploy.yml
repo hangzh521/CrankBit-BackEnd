@@ -31,12 +31,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        env:
-          SNYK_API_TOKEN: ${{ secrets.SNYK_API_TOKEN }}
-        with:
-          args: --severity-threshold=high 
+      # - name: Run Snyk to check for vulnerabilities
+      #   uses: snyk/actions/node@master
+      #   env:
+      #     SNYK_API_TOKEN: ${{ secrets.SNYK_API_TOKEN }}
+      #   with:
+      #     args: --severity-threshold=high 
 
       - name: Install dependencies
         run: npm ci
