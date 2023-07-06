@@ -1,0 +1,178 @@
+name: Docker ECR Deploy
+on:
+  push:
+    branches:
+      - 'CB**'
+      - main
+      - uat
+      - prod
+
+  pull_request:
+    branches:
+      - main
+      - uat
+      - prod
+
+env:
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  DEV_ECR_REPOSITORY: crankbit-dev
+  UAT_ECR_REPOSITORY: crankbit-uat
+  PROD_ECR_REPOSITORY: crankbit-prod
+  IMAGE_TAG: latest
+  MONGO_URI: ${{ secrets.MONGO_URI }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  JWT_LIFETIME: ${{ secrets.JWT_LIFETIME }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_API_TOKEN: ${{ secrets.SNYK_API_TOKEN }}
+        with:
+          args: --severity-threshold=high 
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm lint
+        run: npm run lint
+
+      - name: Run npm test
+        run: npm test
+ 
+  build-main:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+
+      - name: Build and tag Docker image
+        id: build-image
+        run: |
+          docker build --build-arg MONGO_URI="$MONGO_URI" \
+           --build-arg JWT_SECRET="$JWT_SECRET" \
+           --build-arg JWT_LIFETIME="$JWT_LIFETIME" \
+           -t $ECR_REGISTRY/$DEV_ECR_REPOSITORY:$IMAGE_TAG . \
+           -t $ECR_REGISTRY/$DEV_ECR_REPOSITORY:${{ github.sha }}
+
+      - name: Tag and Push Docker image to Amazon ECR
+        run: |
+          docker push "${{ env.ECR_REGISTRY }}/${{ env.DEV_ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          docker push "${{ env.ECR_REGISTRY }}/${{ env.DEV_ECR_REPOSITORY }}:${{ github.sha }}"
+      
+      # - name: Update ECS service
+      # run: |
+      #   aws ecs update-service \
+      #   --cluster $DEV_CLUSTER_NAME \
+      #   --service $DEV_SERVICE_NAME \
+      #   --task-definition $DEV_TASK_DEFINITION \
+      #   --force-new-deployment \
+
+  build-uat:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/uat'
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+
+      - name: Build and tag Docker image
+        id: build-image
+        run: |
+          docker build --build-arg MONGO_URI="$MONGO_URI" \
+           --build-arg JWT_SECRET="$JWT_SECRET" \
+           --build-arg JWT_LIFETIME="$JWT_LIFETIME" \
+           -t $ECR_REGISTRY/$UAT_ECR_REPOSITORY:$IMAGE_TAG . \
+           -t $ECR_REGISTRY/$UAT_ECR_REPOSITORY:${{ github.sha }}
+
+      - name: Tag and Push Docker image to Amazon ECR
+        run: |
+          docker push "${{ env.ECR_REGISTRY }}/${{ env.UAT_ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          docker push "${{ env.ECR_REGISTRY }}/${{ env.UAT_ECR_REPOSITORY }}:${{ github.sha }}"
+
+      # - name: Update ECS service
+      #   run: |
+      #     aws ecs update-service \
+      #     --cluster $UAT_CLUSTER_NAME \
+      #     --service $UAT_SERVICE_NAME \ 
+      #     --task-definition $UAT_TASK_DEFINITION \
+      #     --force-new-deployment \
+
+  build-prod:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/prod'
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+
+      - name: Build and tag Docker image
+        id: build-image
+        run: |
+          docker build --build-arg MONGO_URI="$MONGO_URI" \
+           --build-arg JWT_SECRET="$JWT_SECRET" \
+           --build-arg JWT_LIFETIME="$JWT_LIFETIME" \
+           -t $ECR_REGISTRY/$PROD_ECR_REPOSITORY:$IMAGE_TAG . \
+           -t $ECR_REGISTRY/$PROD_ECR_REPOSITORY:${{ github.sha }}
+
+      - name: Tag and Push Docker image to Amazon ECR
+        run: |
+          docker push "${{ env.ECR_REGISTRY }}/${{ env.PROD_ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          docker push "${{ env.ECR_REGISTRY }}/${{ env.PROD_ECR_REPOSITORY }}:${{ github.sha }}"
+
+      # - name: Update ECS service
+      #   run: |
+      #     aws ecs update-service \
+      #     --cluster $PROD_CLUSTER_NAME \
+      #     --service $PROD_SERVICE_NAME \
+      #     --task-definition $PROD_TASK_DEFINITION \
+      #     --force-new-deployment \
