@@ -8,6 +8,10 @@ export interface ITenant extends Document {
   email: string
   password: string
   companies: ICompany[]
+  changedPasswords: {
+    password: string
+    createdAt: Date
+  }[]
   createJwt(): string
   comparePassword(inputPassword: string): Promise<boolean>
 }
@@ -37,6 +41,18 @@ const TenantSchema = new mongoose.Schema({
         required: [true, 'please provide a company'],
         unique: true,
         sparse: true,
+      },
+    },
+  ],
+  changedPasswords: [
+    {
+      password: {
+        type: String,
+        required: true,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
       },
     },
   ],

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { register, login } from '../controllers/auth'
+import { register, login, updatePassword } from '../controllers/auth'
 
 const authRouter = Router()
 
@@ -66,4 +66,35 @@ authRouter.route('/register').post(register)
  */
 authRouter.route('/login').post(login)
 
+/**
+ * @openapi
+ * '/api/v1/auth/update-password':
+ *  post:
+ *    summary: Update user password
+ *    tags: [Auth]
+ *    requestBody:
+ *      description: User password update data
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            required:
+ *              - newPassword
+ *              - token
+ *            properties:
+ *              newPassword:
+ *                type: string
+ *              token:
+ *                type: string
+ *    responses:
+ *      200:
+ *        description: Password updated successfully
+ *      400:
+ *        description: Invalid credentials or password requirements not met
+ *      401:
+ *        description: Unauthorized access
+ */
+
+authRouter.route('/update-password').post(updatePassword)
 export default authRouter
