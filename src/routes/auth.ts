@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { register, login } from '../controllers/auth'
+import { googleLoginController, googleLoginCallbackController } from '../controllers/Googlelogin'
 
 const authRouter = Router()
 
@@ -65,5 +66,31 @@ authRouter.route('/register').post(register)
  *        description: Invalid credentials
  */
 authRouter.route('/login').post(login)
+/**
+ * @openapi
+ * /api/v1/auth/google:
+ *   get:
+ *     summary: 用户使用 Google 登录
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: 成功发起 Google 登录流程
+ *       401:
+ *         description: 未经授权或登录失败
+ */
+authRouter.route('/google').get(googleLoginController)
 
+/**
+ * @openapi
+ * /api/v1/auth/google/callback:
+ *   get:
+ *     summary: Google 登录回调
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Google 登录回调处理成功
+ *       401:
+ *         description: 未经授权或登录失败
+ */
+authRouter.route('/google/callback').get(googleLoginCallbackController)
 export default authRouter
