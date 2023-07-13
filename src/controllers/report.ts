@@ -1,40 +1,56 @@
-import mongoose, { Document, Model, Schema } from 'mongoose'
+import { Request, Response } from 'express'
+import { IReport } from '../models/Report'
+import reportService from '../services/reportService'
 
-export interface IReport extends Document {
-  title: string
+export const createReportController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const reportData = req.body as Partial<IReport>
+    const newReport = await reportService.createReport(reportData)
+    res.status(201).json(newReport)
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
 }
 
-export interface IReportModel extends Model<IReport> {
-  createReport(reportData: Partial<IReport>): Promise<IReport>
-  getReportById(reportId: string): Promise<IReport | null>
-  updateReport(reportId: string, updatedData: Partial<IReport>): Promise<IReport | null>
-  deleteReport(reportId: string): Promise<IReport | null>
+export const getReportByIdController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const reportId = req.params.id
+    const report = await reportService.getReportById(reportId)
+    if (!report) {
+      res.status(404).json({ error: 'Report not found' })
+    } else {
+      res.json(report)
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
 }
 
-const ReportSchema = new Schema<IReport, IReportModel>({
-  title: {
-    type: String,
-    required: [true, 'please enter your report title.'],
-  },
-})
-
-ReportSchema.statics.createReport = async function (reportData: Partial<IReport>): Promise<IReport> {
-  return this.create(reportData)
+export const updateReportController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const reportId = req.params.id
+    const updatedData = req.body as Partial<IReport>
+    const updatedReport = await reportService.updateReport(reportId, updatedData)
+    if (!updatedReport) {
+      res.status(404).json({ error: 'Report not found' })
+    } else {
+      res.json(updatedReport)
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
 }
 
-ReportSchema.statics.getReportById = async function (reportId: string): Promise<IReport | null> {
-  return this.findById(reportId).lean()
+export const deleteReportController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const reportId = req.params.id
+    const deletedReport = await reportService.deleteReport(reportId)
+    if (!deletedReport) {
+      res.status(404).json({ error: 'Report not found' })
+    } else {
+      res.json(deletedReport)
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
 }
-
-ReportSchema.statics.updateReport = async function (
-  reportId: string,
-  updatedData: Partial<IReport>
-): Promise<IReport | null> {
-  return this.findByIdAndUpdate(reportId, updatedData, { new: true }).lean()
-}
-
-ReportSchema.statics.deleteReport = async function (reportId: string): Promise<IReport | null> {
-  return this.findByIdAndDelete(reportId).lean()
-}
-
-export const Report: IReportModel = mongoose.model<IReport, IReportModel>('Report', ReportSchema)

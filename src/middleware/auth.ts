@@ -1,5 +1,5 @@
 import { Response, NextFunction } from 'express'
-import HttpStatusCodes from 'http-status-codes'
+import { StatusCodes } from 'http-status-codes'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 
 import Payload from '../types/Payload'
@@ -7,14 +7,16 @@ import Request from '../types/Request'
 
 const authenticateTenant = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization
-  if (!authHeader || !authHeader.startsWith('Bearer')) {
-    throw new Error('Authentication Invalid')
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Authorization denied' })
+    return
   }
 
   const token = authHeader.split(' ')[1]
 
   if (!token) {
-    res.status(HttpStatusCodes.UNAUTHORIZED).json({ msg: 'Authorization denied' })
+    res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Authorization denied' })
     return
   }
 
@@ -25,7 +27,7 @@ const authenticateTenant = (req: Request, res: Response, next: NextFunction): vo
 
     next()
   } catch (err) {
-    res.status(HttpStatusCodes.FORBIDDEN).json({ msg: 'Authorization invalid' })
+    res.status(StatusCodes.FORBIDDEN).json({ message: 'Authorization invalid' })
   }
 }
 

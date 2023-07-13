@@ -10,7 +10,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   const { error, value } = TenantSchema.validate(req.body)
 
   if (error) {
-    res.status(StatusCodes.BAD_REQUEST).json({ msg: error.message })
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message })
     return
   }
 
@@ -18,14 +18,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
   const tenantExists = await Tenant.findOne({ email })
   if (tenantExists) {
-    res.status(StatusCodes.BAD_REQUEST).json({ msg: 'Please provide another valid email address' })
+    res.status(StatusCodes.BAD_REQUEST).json({ message: 'Please provide another valid email address' })
     return
   }
 
   const tenant = await Tenant.create({ name, email, password })
   const token = tenant.createJwt()
+
   res.status(StatusCodes.CREATED).json({
-    msg: 'Sign up successfully',
     tenant: {
       tenantId: tenant._id,
       name: tenant.name,
@@ -39,7 +39,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   const { error, value } = TenantSchema.validate(req.body)
 
   if (error) {
-    res.status(StatusCodes.BAD_REQUEST).json({ msg: error.message })
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message })
     return
   }
 
@@ -47,19 +47,25 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
   const tenant = await Tenant.findOne({ email }).select('+password')
   if (!tenant) {
-    res.status(StatusCodes.UNAUTHORIZED).json({ msg: 'Invalid credentials' })
+
+    res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid credentials' })
+    return
   }
 
   const isPasswordCorrect = await tenant.comparePassword(password)
   if (!isPasswordCorrect) {
-    res.status(StatusCodes.UNAUTHORIZED).json({ msg: 'Invalid credentials' })
+
+    res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid credentials' })
+    return
+
   }
 
   const token = tenant.createJwt()
   tenant.password = undefined
+
   res.status(StatusCodes.OK).json({
     tenant: {
-      userId: tenant._id,
+      tenantId: tenant._id,
       name: tenant.name,
       email: tenant.email,
     },

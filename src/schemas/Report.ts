@@ -2,7 +2,7 @@ import Joi from 'joi'
 
 const ReportSchema = Joi.object({
   vehicle: Joi.string().required(),
-  name: Joi.string().min(3).max(50),
+  owner: Joi.string().min(3).max(50),
   service: Joi.string().required(),
   createdAt: Joi.string().isoDate().required(),
   description: Joi.string().required().label('Description'),

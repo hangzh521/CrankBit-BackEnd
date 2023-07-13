@@ -6,10 +6,13 @@ import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
 import RateLimit from 'express-rate-limit'
 
+import sgMail from '@sendgrid/mail'
 import connectDB from './database'
 import swaggerJsDoc from './utils/swagger'
 
 import v1Router from './routes'
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 const app = express()
 app.use(express.json())

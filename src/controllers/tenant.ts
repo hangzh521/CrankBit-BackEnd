@@ -44,3 +44,7 @@ export const updateTenant = async (req: Request, res: Response): Promise<void> =
     token,
   })
 }
+
+export const checkLogin = async (req: Request, res: Response): Promise<void> => {
+  res.json({ loggedIn: true })
+}
