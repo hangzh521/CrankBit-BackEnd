@@ -132,3 +132,4 @@ dist
 .env
 .yarn
 .yarnrc.yml
+**/.idea
