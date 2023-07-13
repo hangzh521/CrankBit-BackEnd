@@ -44,17 +44,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
   const tenant = await Tenant.findOne({ email }).select('+password')
   if (!tenant) {
-
     res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid credentials' })
     return
   }
 
   const isPasswordCorrect = await tenant.comparePassword(password)
   if (!isPasswordCorrect) {
-
     res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid credentials' })
     return
-
   }
 
   const token = tenant.createJwt()
