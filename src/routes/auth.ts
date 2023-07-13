@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { register, login, updatePassword } from '../controllers/auth'
+import { register, login, updatePassword, sendEmailResetPassword } from '../controllers/auth'
 
 const authRouter = Router()
 
@@ -97,4 +97,31 @@ authRouter.route('/login').post(login)
  */
 
 authRouter.route('/update-password').post(updatePassword)
+
+/**
+ * @openapi
+ * '/api/v1/auth/sendEmailToResetPassword':
+ *  post:
+ *    summary: Send Email to reset password
+ *    tags: [Auth]
+ *    requestBody:
+ *      description: Send Email to reset password
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            required:
+ *              - email
+ *            properties:
+ *              token:
+ *                type: string
+ *    responses:
+ *      200:
+ *        description: Email sent successfully
+ *     npm 400:
+ *        description: Email sent failed
+ */
+
+authRouter.route('/sendEmailToResetPassword').post(sendEmailResetPassword)
 export default authRouter

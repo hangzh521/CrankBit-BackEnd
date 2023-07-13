@@ -1,6 +1,7 @@
-import { Request, Response } from 'express'
+import { Request, Response, response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import jwt from 'jsonwebtoken'
+import sgMail from '@sendgrid/mail'
 import { Tenant } from '../models/Tenant'
 import TenantSchema from '../schemas/Tenant'
 import Payload from '../types/Payload'
@@ -105,4 +106,39 @@ export const updatePassword = async (req: Request, res: Response): Promise<void>
     },
     newToken,
   })
+}
+export const sendEmailResetPassword = async (req: Request, res: Response): Promise<void> => {
+  const { email } = req.body
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+  const tenant = await Tenant.findOne({ email })
+
+  if (!tenant) {
+    res.status(StatusCodes.BAD_REQUEST).json({ msg: 'Please provide a valid email address' })
+    return
+  }
+
+  const token = tenant.resetPasswordToken()
+  const linkText = 'click here to reset your password'
+  const { name } = tenant
+  const emailbody = `
+    <p>Hello ${name}：</p>
+    <p>A request has been received to change the password for your Form Builder account.</p>
+    <button><a href="/reset-password?token=${token}">${linkText}</a></button>
+    <p>If you did not make a request to reset your password, you can safely ignore this email. Only a person with access to your email can reset your password.</p>
+    <p>Form Builder Team</p>
+  `
+  const msg: sgMail.MailDataRequired = {
+    to: email,
+    from: 'chao.long.au@gmail.com', // 添加发件人邮箱地址
+    subject: 'Reset Password',
+    html: emailbody,
+  }
+
+  try {
+    await sgMail.send(msg)
+    res.status(StatusCodes.OK).json({ msg: 'Email sent successfully' })
+  } catch (err) {
+    console.log(err.response.body.errors)
+    res.status(StatusCodes.BAD_REQUEST).json({ msg: 'Email sent failed' })
+  }
 }

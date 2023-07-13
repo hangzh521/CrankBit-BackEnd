@@ -14,6 +14,7 @@ export interface ITenant extends Document {
   }[]
   createJwt(): string
   comparePassword(inputPassword: string): Promise<boolean>
+  resetPasswordToken(): string
 }
 
 const TenantSchema = new mongoose.Schema({
@@ -69,11 +70,16 @@ TenantSchema.pre<ITenant>('save', async function () {
 })
 
 TenantSchema.methods.createJwt = function (): string {
-  return jwt.sign({ tenantId: this._id }, process.env.JWT_SECRET, {
+  return jwt.sign({ tenantId: this._id, changePassword: false }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_LIFETIME,
   })
 }
 
+TenantSchema.methods.resetPasswordToken = function (): string {
+  return jwt.sign({ tenantId: this._id, changePassword: true }, process.env.JWT_SECRET, {
+    expiresIn: 900,
+  })
+}
 TenantSchema.methods.comparePassword = async function (inputPassword: string): Promise<boolean> {
   const isMatch = await bcrypt.compare(inputPassword, this.password)
   return isMatch
