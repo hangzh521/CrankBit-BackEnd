@@ -111,16 +111,33 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
     
+    
     - name: Build docker image
       env: 
         MONGO_URI: ${{ secrets.MONGO_URI }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         JWT_LIFETIME: ${{ secrets.JWT_LIFETIME }}
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+        PORT: ${{ secrets.PORT }}
+        EMAIL_SERVER_PASSWORD: ${{ secrets.EMAIL_SERVER_PASSWORD }}
+        EMAIL_SERVER_PORT: ${{ secrets.EMAIL_SERVER_PORT }}
+        EMAIL_SERVER_HOST: ${{ secrets.EMAIL_SERVER_HOST }}
+        EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        EMAIL_SERVER_USER: ${{ secrets.EMAIL_SERVER_USER }}
+        SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
       run: |
         docker build \
         --build-arg MONGO_URI="$MONGO_URI" \
         --build-arg JWT_SECRET="$JWT_SECRET" \
         --build-arg JWT_LIFETIME="$JWT_LIFETIME" \
+        --build-arg JWT_SECRET_KEY="$JWT_SECRET_KEY" \
+        --build-arg PORT="$PORT" \
+        --build-arg EMAIL_SERVER_PASSWORD="$EMAIL_SERVER_PASSWORD" \
+        --build-arg EMAIL_SERVER_PORT="$EMAIL_SERVER_PORT" \
+        --build-arg EMAIL_SERVER_HOST="$EMAIL_SERVER_HOST" \
+        --build-arg EMAIL_FROM="$EMAIL_FROM" \
+        --build-arg EMAIL_SERVER_USER="$EMAIL_SERVER_USER" \
+        --build-arg SENDGRID_API_KEY="$SENDGRID_API_KEY" \
         -t ${{ vars.ECS_REGISTRY_ZIQI }}/crankbit-backend-${{ github.ref_name }}:latest \
         -t ${{ vars.ECS_REGISTRY_ZIQI }}/crankbit-backend-${{ github.ref_name }}:${{ github.sha }} .
     
