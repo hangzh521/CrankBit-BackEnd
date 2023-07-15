@@ -1,112 +1,112 @@
-# name: Docker ECR Deploy
-# on:
-#   push:
-#     branches:
-#       - 'CB**'
-#       - main
-#       - uat
-#       - prod
+name: Docker ECR Deploy
+on:
+  push:
+    branches:
+      - 'CB**'
+      - main
+      - uat
+      - prod
 
-#   pull_request:
-#     branches:
-#       - main
-#       - uat
-#       - prod
+  pull_request:
+    branches:
+      - main
+      - uat
+      - prod
 
-# env:
-#   ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
-#   IMAGE_TAG: latest
-#   MONGO_URI: ${{ secrets.MONGO_URI }}
-#   JWT_SECRET: ${{ secrets.JWT_SECRET }}
-#   JWT_LIFETIME: ${{ secrets.JWT_LIFETIME }}
-#   JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-#   PORT: ${{ secrets.PORT }}
-#   EMAIL_SERVER_PASSWORD: ${{ secrets.EMAIL_SERVER_PASSWORD }}
-#   EMAIL_SERVER_PORT: ${{ secrets.EMAIL_SERVER_PORT }}
-#   EMAIL_SERVER_HOST: ${{ secrets.EMAIL_SERVER_HOST }}
-#   EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
-#   EMAIL_SERVER_USER: ${{ secrets.EMAIL_SERVER_USER }}
-#   SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+env:
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  IMAGE_TAG: latest
+  MONGO_URI: ${{ secrets.MONGO_URI }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  JWT_LIFETIME: ${{ secrets.JWT_LIFETIME }}
+  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+  PORT: ${{ secrets.PORT }}
+  EMAIL_SERVER_PASSWORD: ${{ secrets.EMAIL_SERVER_PASSWORD }}
+  EMAIL_SERVER_PORT: ${{ secrets.EMAIL_SERVER_PORT }}
+  EMAIL_SERVER_HOST: ${{ secrets.EMAIL_SERVER_HOST }}
+  EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+  EMAIL_SERVER_USER: ${{ secrets.EMAIL_SERVER_USER }}
+  SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
 
-# jobs:
-#   test:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v2
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-#       - name: Setup Node
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: '18'
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-#       # - name: Run Snyk to check for vulnerabilities
-#       #   uses: snyk/actions/node@master
-#       #   env:
-#       #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-#       #   with:
-#       #     args: --severity-threshold=high 
+      # - name: Run Snyk to check for vulnerabilities
+      #   uses: snyk/actions/node@master
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   with:
+      #     args: --severity-threshold=high 
 
-#       - name: Install dependencies
-#         run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-#       - name: Run npm lint
-#         run: npm run lint
+      - name: Run npm lint
+        run: npm run lint
 
-#       - name: Run npm test
-#         run: npm test
+      - name: Run npm test
+        run: npm test
  
-#   build_and_deploy:
-#     if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'push' && github.ref == 'refs/heads/uat' || github.event_name == 'push' && github.ref == 'refs/heads/prod'
+  build_and_deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'push' && github.ref == 'refs/heads/uat' || github.event_name == 'push' && github.ref == 'refs/heads/prod'
     
-#     needs: test
-#     runs-on: ubuntu-latest
+    needs: test
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-#       - name: Configure AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
       
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-#       - name: Login to Amazon ECR
-#         id: login-ecr
-#         run: |
-#           aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        run: |
+          aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
 
-#       - name: Build and tag Docker image
-#         id: build-image
-#         run: |
-#           docker build --build-arg MONGO_URI="$MONGO_URI" \
-#            --build-arg JWT_SECRET="$JWT_SECRET" \
-#            --build-arg JWT_LIFETIME="$JWT_LIFETIME" \
-#            --build-arg JWT_SECRET_KEY="$JWT_SECRET_KEY" \
-#            --build-arg PORT="$PORT" \
-#            --build-arg EMAIL_SERVER_PASSWORD="$EMAIL_SERVER_PASSWORD" \
-#            --build-arg EMAIL_SERVER_PORT="$EMAIL_SERVER_PORT" \
-#            --build-arg EMAIL_SERVER_HOST="$EMAIL_SERVER_HOST" \
-#            --build-arg EMAIL_FROM="$EMAIL_FROM" \
-#            --build-arg EMAIL_SERVER_USER="$EMAIL_SERVER_USER" \
-#            --build-arg SENDGRID_API_KEY="$SENDGRID_API_KEY" \
-#            -t $ECR_REGISTRY/crankbit-${{ github.ref_name }}:$IMAGE_TAG . \
-#            -t $ECR_REGISTRY/crankbit-${{ github.ref_name }}:${{ github.sha }}
+      - name: Build and tag Docker image
+        id: build-image
+        run: |
+          docker build --build-arg MONGO_URI="$MONGO_URI" \
+           --build-arg JWT_SECRET="$JWT_SECRET" \
+           --build-arg JWT_LIFETIME="$JWT_LIFETIME" \
+           --build-arg JWT_SECRET_KEY="$JWT_SECRET_KEY" \
+           --build-arg PORT="$PORT" \
+           --build-arg EMAIL_SERVER_PASSWORD="$EMAIL_SERVER_PASSWORD" \
+           --build-arg EMAIL_SERVER_PORT="$EMAIL_SERVER_PORT" \
+           --build-arg EMAIL_SERVER_HOST="$EMAIL_SERVER_HOST" \
+           --build-arg EMAIL_FROM="$EMAIL_FROM" \
+           --build-arg EMAIL_SERVER_USER="$EMAIL_SERVER_USER" \
+           --build-arg SENDGRID_API_KEY="$SENDGRID_API_KEY" \
+           -t $ECR_REGISTRY/crankbit-${{ github.ref_name }}:$IMAGE_TAG . \
+           -t $ECR_REGISTRY/crankbit-${{ github.ref_name }}:${{ github.sha }}
 
-#       - name: Tag and Push Docker image to Amazon ECR
-#         run: |
-#           docker push "${{ env.ECR_REGISTRY }}/crankbit-${{ github.ref_name }}:${{ env.IMAGE_TAG }}"
-#           docker push "${{ env.ECR_REGISTRY }}/crankbit-${{ github.ref_name }}:${{ github.sha }}"
+      - name: Tag and Push Docker image to Amazon ECR
+        run: |
+          docker push "${{ env.ECR_REGISTRY }}/crankbit-${{ github.ref_name }}:${{ env.IMAGE_TAG }}"
+          docker push "${{ env.ECR_REGISTRY }}/crankbit-${{ github.ref_name }}:${{ github.sha }}"
       
-#       - name: Update ECS service
-#         run: |
-#           aws ecs update-service \
-#           --cluster crankbit-cluster-${{ github.ref_name }} \
-#           --service crankbit-backend-service-${{ github.ref_name }} \
-#           --task-definition crankbit-task-definition-${{ github.ref_name }} \
-#           --force-new-deployment \
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+          --cluster crankbit-cluster-${{ github.ref_name }} \
+          --service crankbit-backend-service-${{ github.ref_name }} \
+          --task-definition crankbit-task-definition-${{ github.ref_name }} \
+          --force-new-deployment \
