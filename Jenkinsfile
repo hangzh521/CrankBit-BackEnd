@@ -54,6 +54,15 @@ pipeline {
             }
         }
         
+        stage('Set Commit Hash') {
+            steps {
+                script {
+                    // 获取Git提交的哈希值并赋值给COMMIT_HASH变量
+                    COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                }
+            }
+        }
+        
         stage('Deploy') {
             when {
                 expression {
