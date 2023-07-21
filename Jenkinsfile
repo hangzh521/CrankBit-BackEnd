@@ -13,7 +13,11 @@ pipeline {
         TASK_DEFINITION = "crankbit-task-definition-${currentBranch}"
         task_definition_file = "task-deinition-${currentBranch}.json"
         COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-        //IMAGE_TAG = 'latest'
+        TASK_DEFINITION_FILES = [
+            'main': "task-definition-main.json",
+            'uat': "task-definition-uat.json",
+            'prod': "task-definition-prod.json"
+        ]
     }
 
     stages {
@@ -82,7 +86,7 @@ pipeline {
                     return currentBranch in ['main', 'uat', 'prod']
                 }
             }
-            
+
 			steps {
 				script {
 					// Get the current task definition
@@ -90,6 +94,8 @@ pipeline {
 
 					// Create new task definition with updated image
 					def newTaskDef = currentTaskDef.replace("COMMIT_HASH_PLACEHOLDER", COMMIT_HASH)
+                    
+                    def task_definition_file = TASK_DEFINITION_FILES[env.BRANCH_NAME.toLowerCase()]
 
 					// Register new task definition
 					def registerTaskDef = sh(script: "aws ecs register-task-definition --cli-input-json file://${task_definition_file}", returnStdout: true).trim()
