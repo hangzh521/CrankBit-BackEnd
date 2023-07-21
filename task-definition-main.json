@@ -1,0 +1,23 @@
+{
+    "family": "crankbit-task-definition-main",
+    "network_mode": "awsvpc",
+    "requires_compatibilities": ["FARGATE"],
+    "cpu": 1024,
+    "memory": 2048,
+    "execution_role_arn": "arn:aws:iam::349498089405:role/ecsTaskExecutionRole",
+
+    "containerDefinitions": [
+      { 
+        "name": "crankbit-dev",
+        "image": "349498089405.dkr.ecr.ap-southeast-2.amazonaws.com/crankbit-main:latest",
+        "cpu": 1024,
+        "memory": 2048,
+        "portMappings": [{
+            "containerPort": 8080,
+            "hostPort": 8080,
+            "protocol": "tcp"
+        }]
+      }
+   ]
+}
+  
