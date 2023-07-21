@@ -48,13 +48,13 @@ pipeline {
 
             when {
                 expression {
-                    //def currentBranch = env.BRANCH_NAME
+                    def currentBranch = env.BRANCH_NAME.toLowerCase()
                     return currentBranch in ['main', 'uat', 'prod']
                 }
             }
 
             environment {
-                //def currentBranch = env.BRANCH_NAME
+                def currentBranch = env.BRANCH_NAME.toLowerCase()
                 ECR_REPO = "crankbit-${currentBranch}"
                 CLUSTER_NAME = "crankbit-cluster-${currentBranch}"
                 SERVICE_NAME = "crankbit-backend-service-${currentBranch}"
