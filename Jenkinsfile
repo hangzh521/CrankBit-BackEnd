@@ -54,7 +54,7 @@ pipeline {
             }
 
             environment {
-                def currentBranch = env.BRANCH_NAME
+                def currentBranch = "env.BRANCH_NAME"
                 ECR_REPO = "crankbit-${currentBranch}"
                 CLUSTER_NAME = "crankbit-cluster-${currentBranch}"
                 SERVICE_NAME = "crankbit-backend-service-${currentBranch}"
