@@ -11,12 +11,12 @@ pipeline {
         CLUSTER_NAME = "crankbit-cluster-${currentBranch}"
         SERVICE_NAME = "crankbit-backend-service-${currentBranch}"
         TASK_DEFINITION = "crankbit-task-definition-${currentBranch}"
-        task_definition_file = "task-deinition-${currentBranch}.json"
+        //task_definition_file = "task-deinition-${currentBranch}.json"
         COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
         TASK_DEFINITION_FILES = [
-            'main': "task-definition-main.json",
-            'uat': "task-definition-uat.json",
-            'prod': "task-definition-prod.json"
+            "main": "task-definition-main.json",
+            "uat": "task-definition-uat.json",
+            "prod": "task-definition-prod.json"
         ]
     }
 
