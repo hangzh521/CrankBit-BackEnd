@@ -59,8 +59,8 @@ pipeline {
                 CLUSTER_NAME = "crankbit-cluster-${currentBranch}"
                 SERVICE_NAME = "crankbit-backend-service-${currentBranch}"
                 TASK_DEFINITION = "crankbit-task-definition-${currentBranch}"
+                IMAGE_TAG = 'latest'
                 // ECR_REGISTRY = credentials('ECR_REGISTRY')
-                // IMAGE_TAG = 'latest'
                 // MONGO_URI = credentials('MONGO_URI')
                 // JWT_SECRET = credentials('JWT_SECRET')
                 // JWT_LIFETIME = credentials('JWT_LIFETIME')
