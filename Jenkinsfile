@@ -12,7 +12,7 @@ pipeline {
         SERVICE_NAME = "crankbit-backend-service-${currentBranch}"
         TASK_DEFINITION = "crankbit-task-definition-${currentBranch}"
         task_definition_file = "task-definition-${currentBranch}.json"
-        COMMIT_HASH = 'latest'
+        COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
        // IMAGE_TAG = 'latest'
        
     }
