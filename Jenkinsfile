@@ -98,15 +98,8 @@ pipeline {
 					// Register new task definition
 					def registerTaskDef = sh(script: "aws ecs register-task-definition --cli-input-json file://new-task-definition.json", returnStdout: true).trim()
                    
-                    // Extract new task definition ARN from the output
-                    def registerTaskDefOutputJson = readJSON text: registerTaskDefOutput
-                    def newTaskDefArn = registerTaskDefOutputJson.taskDefinition.taskDefinitionArn
-
-                    // Update service to use new task Definition
-                    sh "aws ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${newTaskDefArn}"
-
 					// Update service to use new task Definition
-					//sh "aws ecs update-service --cluster ${CLUSTER_NAME} --services ${SERVICE_NAME} --task-definition ${registerTaskDef}"
+					sh "aws ecs update-service --cluster ${CLUSTER_NAME} --services ${SERVICE_NAME} --task-definition ${registerTaskDef} --force-new-deployment"
 
 				}
 			}
