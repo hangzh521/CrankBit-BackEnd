@@ -87,6 +87,9 @@ pipeline {
 
 			steps {
 				script {
+                    def taskDefinitionJson = readFile('$task_definition_file')
+                    taskDefinitionJson = taskDefinitionJson.replace('${COMMIT_HASH}', COMMIT_HASH)
+                    writeFile file: 'new-task-definition.json', text: taskDefinitionJson
 					// Get the current task definition
 					def currentTaskDef = sh(script: "aws ecs describe-services --cluster ${CLUSTER_NAME} --services ${SERVICE_NAME} --query 'services[0].taskDefinition'", returnStdout:true).trim()
 
@@ -94,7 +97,7 @@ pipeline {
 					def newTaskDef = currentTaskDef.replace("COMMIT_HASH_PLACEHOLDER", COMMIT_HASH)
 					
                     // Register new task definition
-					def registerTaskDef = sh(script: "aws ecs register-task-definition --cli-input-json file://$task_definition_file", returnStdout: true).trim()
+					def registerTaskDef = sh(script: "aws ecs register-task-definition --cli-input-json file://new-task-definition.json", returnStdout: true).trim()
                     
                     // Update service to use new task Definition
 					sh "aws ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition '${registerTaskDef}'"
