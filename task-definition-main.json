@@ -1,6 +1,5 @@
 {
     "family": "crankbit-task-definition-main",
-
     "containerDefinitions": [
       { 
         "name": "crankbit-dev",
