@@ -92,7 +92,7 @@ pipeline {
 					def newTaskDef = currentTaskDef.replace("COMMIT_HASH_PLACEHOLDER", COMMIT_HASH)
 
 					// Register new task definition
-					def registerTaskDef = sh(script: "aws ecs register-task-definition --cli-input-json file://task-deinition-main.json", returnStdout: true).trim()
+					def registerTaskDef = sh(script: "aws ecs register-task-definition --cli-input-json file://task-definition-main.json", returnStdout: true).trim()
 
 					// Update service to use new task Definition
 					sh "aws ecs update-service --cluster ${CLUSTER_NAME} --services ${SERVICE_NAME} --task-definition ${registerTaskDef}"
