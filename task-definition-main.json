@@ -1,5 +1,10 @@
 {
     "family": "crankbit-task-definition-main",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "1024",
+    "memory": "2048",
+    "execution_role_arn": "arn:aws:iam::349498089405:role/ecsTaskExecutionRole",
+
     "containerDefinitions": [
       { 
         "name": "crankbit-dev",
