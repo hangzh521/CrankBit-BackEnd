@@ -12,9 +12,7 @@ pipeline {
         SERVICE_NAME = "crankbit-backend-service-${currentBranch}"
         TASK_DEFINITION = "crankbit-task-definition-${currentBranch}"
         task_definition_file = "task-definition-${currentBranch}.json"
-        COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-       // IMAGE_TAG = 'latest'
-       
+        COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
     }
 
     stages {
@@ -88,9 +86,12 @@ pipeline {
 			steps {
 				script {
                     def taskDefinitionJson = readFile("${task_definition_file}")
+                    
                     taskDefinitionJson = taskDefinitionJson.replace('${COMMIT_HASH}', COMMIT_HASH)
+                    
                     writeFile file: 'new-task-definition.json', text: taskDefinitionJson
-					// Get the current task definition
+					
+                    // Get the current task definition
 					def currentTaskDef = sh(script: "aws ecs describe-services --cluster ${CLUSTER_NAME} --services ${SERVICE_NAME} --query 'services[0].taskDefinition'", returnStdout:true).trim()
 
 					// Create new task definition with updated image

@@ -12,6 +12,14 @@
         "image": "349498089405.dkr.ecr.ap-southeast-2.amazonaws.com/crankbit-main:${COMMIT_HASH}",
         "cpu": 1024,
         "memory": 2048,
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+              "awslogs-region" : "ap-southeast-2",
+              "awslogs-group" : var.crankbit_logs_group_name,
+              "awslogs-stream-prefix" : "ecs"
+           }
+        },
         "portMappings": [{
             "containerPort": 8080,
             "hostPort": 8080,
