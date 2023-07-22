@@ -16,7 +16,7 @@
           "logDriver": "awslogs",
           "options": {
               "awslogs-region" : "ap-southeast-2",
-              "awslogs-group" : var.crankbit_logs_group_name,
+              "awslogs-group" : "/ecs/crankbit-task-definition-dev",
               "awslogs-stream-prefix" : "ecs"
            }
         },
