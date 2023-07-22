@@ -104,6 +104,8 @@ pipeline {
 
     }
 
+}
+
     post {
         failure {
             emailext(attachLog: true, body: 'failed', subject: 'backend build failed', to: 'zhaohang521@hotmail.com')
@@ -113,7 +115,6 @@ pipeline {
         success {
             emailext(attachLog: true, body: 'succeeded', subject: 'backend build succeeded', to: 'zhaohang521@hotmail.com')
             echo "Your backend build succeeded"
-          }
-       }
-   }
+        }
+    }
 }
