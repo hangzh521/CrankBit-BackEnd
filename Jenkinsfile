@@ -12,8 +12,7 @@ pipeline {
         SERVICE_NAME = "crankbit-backend-service-${currentBranch}"
         TASK_DEFINITION = "crankbit-task-definition-${currentBranch}"
         //task_definition_file = "task-deinition-${currentBranch}.json"
-        //COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-        COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim().toInt()
+        COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
     }
 
     stages {
