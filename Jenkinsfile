@@ -12,7 +12,7 @@ pipeline {
         SERVICE_NAME = "crankbit-backend-service-${currentBranch}"
         TASK_DEFINITION = "crankbit-task-definition-${currentBranch}"
         //task_definition_file = "task-deinition-${currentBranch}.json"
-        COMMIT_HASH = "latest"
+        COMMIT_HASH = "sh(returnStdout: true, script: 'git rev-parse HEAD').trim()"
     }
 
     stages {
@@ -84,7 +84,6 @@ pipeline {
 
 			steps {
 				script {
-                  withVault(configuration: [timeout: 60, vaultCredentialId: 'vault-jenkins-role', vaultUrl: 'http://3.104.77.86:8200'], vaultSecrets: [[path: 'secrets/crankbit/my-secret-text', secretValues: [[vaultKey: 'AWS_ACCESS_KEY_ID'], [vaultKey: 'AWS_SECRET_ACCESS_KEY'], [vaultKey: 'AWS_DEFAULT_REGION']]]]) {
 					// Get the current task definition
 					def currentTaskDef = sh(script: "aws ecs describe-services --cluster ${CLUSTER_NAME} --services ${SERVICE_NAME} --query 'services[0].taskDefinition'", returnStdout:true).trim()
 
@@ -103,8 +102,6 @@ pipeline {
 		}
 
     }
-
-}
 
     post {
         failure {
