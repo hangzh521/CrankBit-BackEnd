@@ -4,6 +4,7 @@
     "networkMode": "awsvpc",
     "cpu": "1024",
     "memory": "2048",
+    "executionRoleArn": "arn:aws:iam::349498089405:role/ecsTaskExecutionRole",
 
     "containerDefinitions": [
       { 
