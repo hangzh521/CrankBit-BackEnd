@@ -11,7 +11,7 @@ pipeline {
         CLUSTER_NAME = "crankbit-cluster-${currentBranch}"
         SERVICE_NAME = "crankbit-backend-service-${currentBranch}"
         TASK_DEFINITION = "crankbit-task-definition-${currentBranch}"
-        task_definition_file = "task-deinition-${currentBranch}.json"
+        task_definition_file = "task-definition-${currentBranch}.json"
         COMMIT_HASH = 'latest'
        // IMAGE_TAG = 'latest'
        
