@@ -87,7 +87,7 @@ pipeline {
 
 			steps {
 				script {
-                    def taskDefinitionJson = readFile('${task_definition_file}')
+                    def taskDefinitionJson = readFile("${task_definition_file}")
                     taskDefinitionJson = taskDefinitionJson.replace('${COMMIT_HASH}', COMMIT_HASH)
                     writeFile file: 'new-task-definition.json', text: taskDefinitionJson
 					// Get the current task definition
