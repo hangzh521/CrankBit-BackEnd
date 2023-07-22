@@ -84,6 +84,7 @@ pipeline {
 
 			steps {
 				script {
+                  withVault(configuration: [timeout: 60, vaultCredentialId: 'vault-jenkins-role', vaultUrl: 'http://3.104.77.86:8200'], vaultSecrets: [[path: 'secrets/crankbit/my-secret-text', secretValues: [[vaultKey: 'AWS_ACCESS_KEY_ID'], [vaultKey: 'AWS_SECRET_ACCESS_KEY'], [vaultKey: 'AWS_DEFAULT_REGION']]]]) {
 					// Get the current task definition
 					def currentTaskDef = sh(script: "aws ecs describe-services --cluster ${CLUSTER_NAME} --services ${SERVICE_NAME} --query 'services[0].taskDefinition'", returnStdout:true).trim()
 
@@ -112,6 +113,7 @@ pipeline {
         success {
             emailext(attachLog: true, body: 'succeeded', subject: 'backend build succeeded', to: 'zhaohang521@hotmail.com')
             echo "Your backend build succeeded"
-        }
-    }
+          }
+       }
+   }
 }
