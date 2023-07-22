@@ -12,7 +12,8 @@ pipeline {
         SERVICE_NAME = "crankbit-backend-service-${currentBranch}"
         TASK_DEFINITION = "crankbit-task-definition-${currentBranch}"
         //task_definition_file = "task-deinition-${currentBranch}.json"
-        COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+        //COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+        COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim().toInt()
     }
 
     stages {
@@ -96,9 +97,16 @@ pipeline {
 
 					// Register new task definition
 					def registerTaskDef = sh(script: "aws ecs register-task-definition --cli-input-json file://new-task-definition.json", returnStdout: true).trim()
+                   
+                    // Extract new task definition ARN from the output
+                    def registerTaskDefOutputJson = readJSON text: registerTaskDefOutput
+                    def newTaskDefArn = registerTaskDefOutputJson.taskDefinition.taskDefinitionArn
+
+                    // Update service to use new task Definition
+                    sh "aws ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${newTaskDefArn}"
 
 					// Update service to use new task Definition
-					sh "aws ecs update-service --cluster ${CLUSTER_NAME} --services ${SERVICE_NAME} --task-definition ${registerTaskDef}"
+					//sh "aws ecs update-service --cluster ${CLUSTER_NAME} --services ${SERVICE_NAME} --task-definition ${registerTaskDef}"
 
 				}
 			}
