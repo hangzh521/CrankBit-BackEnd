@@ -7,7 +7,6 @@ pipeline {
 
     environment {
         def currentBranch = env.BRANCH_NAME.toLowerCase()
-        currentBranch = currentBranch.replaceAll("[/\\s]", "_")
         ECR_REPO = "crankbit"
         CLUSTER_NAME = "crankbit-cluster-${currentBranch}"
         SERVICE_NAME = "crankbit-backend-service-${currentBranch}"
