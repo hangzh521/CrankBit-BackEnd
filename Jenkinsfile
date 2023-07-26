@@ -11,7 +11,7 @@ pipeline {
         CLUSTER_NAME = "crankbit-cluster-${currentBranch}"
         SERVICE_NAME = "crankbit-backend-service-${currentBranch}"
         TASK_DEFINITION = "crankbit-task-definition-${currentBranch}"
-        task_definition_file = "task-definition-${currentBranch}.json"
+        task_definition_file = "task-definition.json"
         COMMIT_HASH = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
     }
 
@@ -64,7 +64,7 @@ pipeline {
 
             steps {
                 script {
-                     withVault(configuration: [timeout: 60, vaultCredentialId: 'vault-jenkins-role', vaultUrl: 'http://54.79.247.137:8200'], vaultSecrets: [[path: 'secrets/crankbit/my-secret-text', secretValues: [[vaultKey: 'AWS_ACCESS_KEY_ID'],[vaultKey: 'AWS_SECRET_ACCESS_KEY'],[vaultKey: 'AWS_DEFAULT_REGION'], [vaultKey: 'ECR_REGISTRY'], [vaultKey: 'MONGO_URI'],[vaultKey: 'JWT_SECRET'],[vaultKey: 'JWT_LIFETIME'],[vaultKey: 'JWT_SECRET_KEY'],[vaultKey: ' PORT'],[vaultKey: 'EMAIL_SERVER_PASSWORD'],[vaultKey: 'EMAIL_SERVER_PORT'],[vaultKey: 'EMAIL_SERVER_HOST'],[vaultKey: 'EMAIL_FROM'],[vaultKey: 'EMAIL_SERVER_USER'],[vaultKey: 'SENDGRID_API_KEY']]]]) {
+                     withVault(configuration: [timeout: 60, vaultCredentialId: 'vault-jenkins-role', vaultUrl: 'http://vault.crankbit.com:8200'], vaultSecrets: [[path: 'secrets/crankbit/my-secret-text', secretValues: [[vaultKey: 'AWS_ACCESS_KEY_ID'],[vaultKey: 'AWS_SECRET_ACCESS_KEY'],[vaultKey: 'AWS_DEFAULT_REGION'], [vaultKey: 'ECR_REGISTRY'], [vaultKey: 'MONGO_URI'],[vaultKey: 'JWT_SECRET'],[vaultKey: 'JWT_LIFETIME'],[vaultKey: 'JWT_SECRET_KEY'],[vaultKey: ' PORT'],[vaultKey: 'EMAIL_SERVER_PASSWORD'],[vaultKey: 'EMAIL_SERVER_PORT'],[vaultKey: 'EMAIL_SERVER_HOST'],[vaultKey: 'EMAIL_FROM'],[vaultKey: 'EMAIL_SERVER_USER'],[vaultKey: 'SENDGRID_API_KEY']]]]) {
                         sh "docker build --build-arg MONGO_URI=$MONGO_URI --build-arg JWT_SECRET=$JWT_SECRET --build-arg JWT_SECRET_KEY=$JWT_SECRET_KEY --build-arg JWT_LIFETIME=$JWT_LIFETIME --build-arg PORT=$PORT --build-arg EMAIL_SERVER_PASSWORD=$EMAIL_SERVER_PASSWORD --build-arg EMAIL_SERVER_PORT=$EMAIL_SERVER_PORT --build-arg EMAIL_SERVER_HOST=$EMAIL_SERVER_HOST  --build-arg EMAIL_FROM=$EMAIL_FROM --build-arg EMAIL_SERVER_USER=$EMAIL_SERVER_USER --build-arg SENDGRID_API_KEY=$SENDGRID_API_KEY -t $ECR_REPO:$COMMIT_HASH ."
                         sh "aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY"
                         sh "docker tag $ECR_REPO:$COMMIT_HASH $ECR_REGISTRY/$ECR_REPO:$COMMIT_HASH"
