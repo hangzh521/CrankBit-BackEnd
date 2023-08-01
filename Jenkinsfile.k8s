@@ -94,13 +94,13 @@ pipeline {
             steps {
                 script {
                   withVault(configuration: [timeout: 60, vaultCredentialId: 'vault-jenkins-role', vaultUrl: 'http://vault.crankbit.com:8200'], vaultSecrets: [[path: 'secrets/crankbit/my-secret-text', secretValues: [[vaultKey: 'AWS_ACCESS_KEY_ID'],[vaultKey: 'AWS_SECRET_ACCESS_KEY'],[vaultKey: 'AWS_DEFAULT_REGION']]]]) {
-                     sh "kubectl apply -f deploy.yaml"
+                     sh 'envsubst < kubernetes/deployment.yaml | kubectl apply -f -'
                     }
                 }
             }
 	    }
     }
-    
+
     post {
         failure {
             emailext(attachLog: true, body: 'failed', subject: 'backend build failed', to: 'zhaohang521@hotmail.com')
@@ -110,6 +110,6 @@ pipeline {
         success {
             emailext(attachLog: true, body: 'succeeded', subject: 'backend build succeeded', to: 'zhaohang521@hotmail.com')
             echo "Your backend build succeeded"
-         }
-      }
-   }
+        }
+    }
+}
