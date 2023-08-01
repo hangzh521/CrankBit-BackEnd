@@ -1,0 +1,81 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: backend
+---
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: crankbit
+  namespace: backend
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: crankbit
+  replicas: 2
+  strategy:
+   type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: crankbit
+    spec:
+      containers:
+      - name: crankbit-backend
+        image: 349498089405.dkr.ecr.ap-southeast-2.amazonaws.com/crankbit:${COMMIT_HASH}
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        imagePullPolicy: Always
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: crankbit
+  namespace: backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: crankbit
+  minReplicas: 1 
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crankbit
+  namespace: backend
+  labels:
+    app.kubernetes.io/name: crankbit
+spec:
+  selector:
+    app.kubernetes.io/name: crankbit
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: backend
+  name: alb-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: crankbit
+                port:
+                  number: 8080
