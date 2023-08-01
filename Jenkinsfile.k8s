@@ -94,7 +94,7 @@ pipeline {
             steps {
                 script {
                   withVault(configuration: [timeout: 60, vaultCredentialId: 'vault-jenkins-role', vaultUrl: 'http://vault.crankbit.com:8200'], vaultSecrets: [[path: 'secrets/crankbit/my-secret-text', secretValues: [[vaultKey: 'AWS_ACCESS_KEY_ID'],[vaultKey: 'AWS_SECRET_ACCESS_KEY'],[vaultKey: 'AWS_DEFAULT_REGION']]]]) {
-                     sh 'envsubst < kubernetes/deployment.yaml | kubectl apply -f -'
+                     sh 'envsubst < deployment.yaml | kubectl apply -f -'
                     }
                 }
             }
