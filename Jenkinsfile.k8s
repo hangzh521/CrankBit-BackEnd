@@ -99,7 +99,8 @@ pipeline {
                 }
             }
 	    }
-
+    }
+    
     post {
         failure {
             emailext(attachLog: true, body: 'failed', subject: 'backend build failed', to: 'zhaohang521@hotmail.com')
@@ -112,4 +113,3 @@ pipeline {
          }
       }
    }
-}
