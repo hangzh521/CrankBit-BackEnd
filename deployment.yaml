@@ -55,7 +55,7 @@ spec:
     app.kubernetes.io/name: crankbit
   ports:
     - protocol: TCP
-      port: 8080
+      port: 80
       targetPort: 8080
   type: NodePort
 ---
@@ -78,4 +78,4 @@ spec:
               service:
                 name: crankbit
                 port:
-                  number: 8080
+                  number: 80
