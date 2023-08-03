@@ -78,4 +78,4 @@ spec:
               service:
                 name: crankbit
                 port:
-                  number: 80
+                  number: 8080
